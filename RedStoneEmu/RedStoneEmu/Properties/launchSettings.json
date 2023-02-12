@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "RedStoneEmu": {
-      "commandName": "Project",
-      "commandLineArgs": "-d "
-    }
-  }
-}
