@@ -40,7 +40,7 @@ username: temp
 password: 1234
 ```
 ### Important ###
-Don't worry about database, it will create automatically.
+Don't worry about database, it will be created automatically.
 
 ### Versions ###
 ```bash
