@@ -23,7 +23,7 @@ services:
     volumes:
       - ./db-data:/var/lib/postgresql/data
     ports:
-      - "${DB_PORT}:${DB_PORT}"
+      - "5055:${DB_PORT}"
     networks:
       - mynetwork
 networks:

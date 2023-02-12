@@ -50,6 +50,10 @@ docker version 23.0.1
 #Docker compose version
 docker-compose version 1.29.2
 ```
+### Database ####
+
+- Database can be changed in .env file
+- Database expore port 5055, if you need connect use this port
 
 ### Namespace overview ###
 
