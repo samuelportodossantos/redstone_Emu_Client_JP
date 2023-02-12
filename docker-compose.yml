@@ -1,0 +1,31 @@
+version: '3.7'
+services:
+  app:
+    container_name: rs_server_service
+    build: .
+    ports:
+      - "55661:55661"
+      - "54631:54631"
+      - "56621:56621"
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+    networks:
+      - mynetwork
+  db:
+    container_name: rs_server_db
+    image: postgres:13
+    environment:
+      POSTGRES_USER: "${DB_USER}"
+      POSTGRES_PASSWORD: "${DB_PASSWORD}"
+      POSTGRES_DB: "${DB_NAME}"
+    volumes:
+      - ./db-data:/var/lib/postgresql/data
+    ports:
+      - "${DB_PORT}:${DB_PORT}"
+    networks:
+      - mynetwork
+networks:
+  mynetwork:
+    driver: bridge
