@@ -33,7 +33,8 @@ make logs
 #show database logs
 make logs-db
 ```
-
+### Important ###
+Don't worry about database, it will create automatically.
 
 ### Namespace overview ###
 
