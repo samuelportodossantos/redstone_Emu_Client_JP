@@ -33,6 +33,13 @@ make logs
 #show database logs
 make logs-db
 ```
+
+### Default game account ###
+```
+username: temp
+password: 1234
+```
+
 ### Important ###
 Don't worry about database, it will create automatically.
 
