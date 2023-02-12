@@ -39,9 +39,17 @@ make logs-db
 username: temp
 password: 1234
 ```
-
 ### Important ###
 Don't worry about database, it will create automatically.
+
+### Versions ###
+```bash
+#Docker version
+docker version 23.0.1
+
+#Docker compose version
+docker-compose version 1.29.2
+```
 
 ### Namespace overview ###
 
