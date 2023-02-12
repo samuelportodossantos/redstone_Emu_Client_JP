@@ -22,17 +22,18 @@ namespace RedStoneLib.Model
     /// </summary>
     public class Map
     {
+        int debug = 0;
         /// <summary>
         /// 全MAPここに保存
         /// </summary>
-        public static Dictionary<ushort, Map> AllMaps { get; private set; } 
+        public static Dictionary<ushort, Map> AllMaps { get; private set; }
             = new Dictionary<ushort, Map>();
 
         /// <summary>
         /// MAPの情報
         /// </summary>
         public static Dictionary<ushort, (Size<ushort> size, MapType type, string name, string fileName)> AllMapInfos { get; private set; }
-            =new Dictionary<ushort, (Size<ushort> size, MapType type, string name, string fileName)>();
+            = new Dictionary<ushort, (Size<ushort> size, MapType type, string name, string fileName)>();
 
         /// <summary>
         /// マップ名
@@ -114,7 +115,7 @@ namespace RedStoneLib.Model
             }
 
             //Map情報読み込み
-            List<(ushort serialID, string fileName, Stream stream)> nameAndStreamList = 
+            List<(ushort serialID, string fileName, Stream stream)> nameAndStreamList =
                 AllMapInfos.Select(t => (t.Key, t.Value.fileName, Helper.StreamFromAssembly($"Scenario.Red_Stone.Map.{t.Value.fileName}"))).ToList();
 
             //全マップ読み込み
@@ -129,12 +130,19 @@ namespace RedStoneLib.Model
                 {
                     AllMaps[nameAndStream.serialID] = map;
                 }
+
+
 #if PARALLEL
             });
 #else
             }
 #endif
+            foreach (var value in AllMapInfos)
+            {
+                // Console.WriteLine(value);
+            }
             AllMaps = AllMaps.OrderBy(t => t.Key).ToDictionary(t => t.Key, t => t.Value);
+
         }
 
         /// <summary>
@@ -145,24 +153,28 @@ namespace RedStoneLib.Model
         {
             FileName = fileName;
             SerialID = serialID;
+            Console.WriteLine(FileName);
 
             using (PacketReader br = new PacketReader(mapStream))
             {
                 //ファイルサイズ
                 uint size = br.ReadUInt32();
+                Console.WriteLine("size:" + size);
 
                 //ポータル情報へのオフセット
                 int portalAreaOffset = br.ReadInt32();
+                Console.WriteLine("portal:" + portalAreaOffset);
 
                 //ファイルシステム情報
                 string scenarioInfo = br.ReadSjis(0x38);
+                Console.WriteLine("scenarioInfo:\n " + scenarioInfo);
 
                 //フィールド情報へのオフセット
                 int fieldAreaOffset = br.ReadInt32();
+                Console.WriteLine("fieldoffset:" + fieldAreaOffset);
 
                 //マップ基本情報読み込み
                 Header = br.ReadStruct<MapHeader>();
-
                 //暗号化レベル
                 double version = Convert.ToDouble(string.Concat(scenarioInfo.Skip(24).Take(3)));
                 switch (version)
@@ -182,10 +194,13 @@ namespace RedStoneLib.Model
                 br.BaseStream.Seek(Header.Size.Width * Header.Size.Height * 6, SeekOrigin.Current);
 
                 //read door list ドア情報
-                ulong[] doorList = new ulong[br.ReadInt32()];
+                var door_num = br.ReadInt32();
+                ulong[] doorList = new ulong[door_num];
+                Console.WriteLine("doornum:" + door_num);
                 for (int i = 0; i < doorList.Length; i++)
                 {
                     doorList[i] = br.ReadUInt64();
+                    Console.WriteLine("door" + i + ":" + doorList[i]);
                 }
 
                 //フィールドマップ
@@ -207,6 +222,7 @@ namespace RedStoneLib.Model
                             //read character data
                             //MAP内のNPC数＆Index取得
                             charIndexes = br.EncryptionReads<ushort>(br._Decryption(nextOffset));
+                            Console.WriteLine(charIndexes.Length);
                             break;
                         case LoadingTarget.NpcGroupInfo:
                             //NPCグループ構造体のサイズ
@@ -228,6 +244,12 @@ namespace RedStoneLib.Model
                             {
                                 //単体情報取得
                                 NpcSingles[i] = new Actor.MapActorSingle(br);
+                                Console.WriteLine("NPC" + i + ":" + NpcSingles[i].Name);
+                                //                                Console.WriteLine("NPCEvent" + i + ":" + NpcSingles[i].Events.Length);
+                                foreach (var _ev in NpcSingles[i].Events)
+                                {
+                                    //                                    Console.WriteLine("str:" + _ev.ToString());
+                                }
                             }
                             break;
                         case LoadingTarget.AreaInfo:
@@ -244,6 +266,37 @@ namespace RedStoneLib.Model
                             for (int i = 0; i < Shops.Length; i++)
                             {
                                 Shops[i] = new Shop(br, version);
+                                if (debug == 1)
+                                {
+                                    Console.WriteLine("SHOP" + i + ":" + Shops[i].NpcName);
+                                    Console.WriteLine("Event:" + Shops[i].isEventShop);
+                                    Console.WriteLine("OnlyDisplay:" + Shops[i].OnlyDisplay);
+                                    Console.WriteLine("MaxPurchasePrice:" + Shops[i].MaxPurchasePrice);
+                                    Console.WriteLine("Index:" + Shops[i].Index);
+                                    Console.WriteLine("Type:" + Shops[i].Type);
+                                    Console.WriteLine("ITEM" + i + " item Num:" + Shops[i].Displayed.Length);
+                                    foreach (var _bys_itm in Shops[i].Displayed)
+                                    {
+                                        Console.WriteLine("name:" + _bys_itm.item.ToString());
+                                        Console.WriteLine("\tcnt:" + _bys_itm.item.Count);
+                                        Console.WriteLine("\tUniqueID:" + _bys_itm.item.UniqueID);
+                                        Console.WriteLine("\tItemIndex:" + _bys_itm.item.ItemIndex);
+                                        Console.WriteLine("\tEndurance:" + _bys_itm.item.Endurance);
+                                        Console.WriteLine("\tValues1:" + _bys_itm.item.Values[0]);
+                                        Console.WriteLine("\tValues2:" + _bys_itm.item.Values[1]);
+                                        for (int _i = 0; _i < _bys_itm.item.OPs.Length; _i++)
+                                        {
+                                            if (_bys_itm.item.OPs[_i].ToString() == "NULL") break;
+                                            Console.WriteLine("\tOP" + _i + ":" + _bys_itm.item.OPs[_i].ToString());
+                                        }
+
+                                        Console.WriteLine("\tunk(表示順?):" + _bys_itm.unk);
+                                        Console.WriteLine("\tunk1:" + _bys_itm.unk1);
+                                        Console.WriteLine("\tunk2:" + _bys_itm.unk2);
+                                        Console.WriteLine("\tunk3:" + _bys_itm.unk3);
+                                        Console.WriteLine("\tprice:" + _bys_itm.price);
+                                    }
+                                }
                             }
                             break;
                     }

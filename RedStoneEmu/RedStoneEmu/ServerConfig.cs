@@ -63,28 +63,32 @@ namespace RedStoneEmu
             }
         }
 
+        public ServerConfig()
+        {
+        }
+
         //DB
         [ConfigComment("DBのホスト", ServerType.Game, ServerType.Login, ServerType.Community)]
-        public string DatabaseHost = "localhost";
+        public string DatabaseHost = Environment.GetEnvironmentVariable("DB_HOST") ??  "localhost";
 
         [ConfigComment("DBサーバーにログインするためのユーザー名", ServerType.Game, ServerType.Login, ServerType.Community)]
-        public string DatabaseUsername = "user";
+        public string DatabaseUsername = Environment.GetEnvironmentVariable("DB_USER") ?? "postgres";
 
         [ConfigComment("DBサーバーにログインするためのパスワード", ServerType.Game, ServerType.Login, ServerType.Community)]
-        public string DatabasePassword = "pass";
+        public string DatabasePassword = Environment.GetEnvironmentVariable("DB_PASSWORD") ?? "default_password";
 
         [ConfigComment("DBサーバーに接続するためのDB名", ServerType.Game, ServerType.Login, ServerType.Community)]
-        public string DatabaseName = "redstone";
+        public string DatabaseName = Environment.GetEnvironmentVariable("DB_NAME") ?? "redstone";
 
         [ConfigComment("BDサーバーに接続するためのポート", ServerType.Game, ServerType.Login, ServerType.Community)]
-        public int DatabasePort = 5432;
+        public int DatabasePort = int.Parse(Environment.GetEnvironmentVariable("DB_PORT") ?? "5432");
 
         //ゲーム鯖情報
         [ConfigComment("サーバーのID ※建てた後変更しないこと", ServerType.Game)]
         public int ServerID = 0;
 
         [ConfigComment("表示されるサーバー名", ServerType.Game)]
-        public string ServerName = "TEST";
+        public string ServerName = "Prandel";
 
         [ConfigComment("GameServerのタイプ", ServerType.Game)]
         public int serverType = 0;

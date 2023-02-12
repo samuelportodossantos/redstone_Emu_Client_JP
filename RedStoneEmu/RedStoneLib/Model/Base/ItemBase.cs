@@ -36,6 +36,7 @@ namespace RedStoneLib.Model.Base
 
                 //アイテムのサイズ
                 int itemLength = br.EncryptionRead<int>();
+                Console.WriteLine(itemLength);
 
                 //どこかへのオフセット
                 uint unknownOffset = br.ReadUInt32();
@@ -64,7 +65,7 @@ namespace RedStoneLib.Model.Base
         private ItemBase(ItemBaseInfo itemSourceInfo)
         {
             m_value = itemSourceInfo;
-
+            
             //OPEffect追加
             var notEmptyEffects = m_value.UniqueOPs.Where(t => !t.IsEmpty);
             if (notEmptyEffects.Count() > 0) {

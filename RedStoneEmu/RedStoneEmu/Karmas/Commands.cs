@@ -1,4 +1,5 @@
-﻿using System;
+﻿using System.Runtime.InteropServices.ComTypes;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,6 +12,8 @@ using RedStoneLib.Packets.RSPacket.Bank;
 using RedStoneLib.Packets.RSPacket.Items;
 using RedStoneLib.Packets.RSPacket.KarmaPacket;
 using RedStoneLib.Packets.RSPacket.Quests;
+using RedStoneEmu.Provider;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace RedStoneEmu.Karmas.Commands
 {
@@ -72,8 +75,6 @@ namespace RedStoneEmu.Karmas.Commands
         {
             //称号持っていない
             if (!player.Titles.TryGetValue(1, out byte bankTitleLevel)) return;
-
-            //DB取得
             using (var gameDB = new gameContext())
             {
                 var bank = gameDB.Banks.SingleOrDefault(t => t.UserID == player.UserID);
@@ -145,7 +146,7 @@ namespace RedStoneEmu.Karmas.Commands
         {
             ushort questID = (ushort)value[0];
             ushort progress = (ushort)value[1];
-            if (!player.ProgressQuests.Values.Select(t=>t.Index).Contains(questID))
+            if (!player.ProgressQuests.Values.Select(t => t.Index).Contains(questID))
             {
                 //受注してない
                 return;

@@ -97,7 +97,10 @@ namespace RedStoneLib.Model
                 ushort unk1 = pr.ReadUInt16();
                 ushort unk2 = pr.ReadUInt16();
                 uint price = pr.ReadUInt32();
+
                 Displayed[i] = (new Item(itemSource), price, unk, unk0, unk1, unk2);
+                Console.WriteLine("name:" + Displayed[i].ToString());
+                Console.WriteLine("price:" + price);
             }
             CostMagnification = 1;
         }

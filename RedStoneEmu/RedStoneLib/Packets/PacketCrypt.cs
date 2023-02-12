@@ -111,12 +111,22 @@ namespace RedStoneLib.Packets
             byte[] result = new byte[data.Length];
             byte tableOffset = (byte)(((decodeKey * 9) << 3) - decodeKey);
             byte encCounter = 0;
+            int shu = 0;
             for (int i = 0; i < data.Length; i++)
             {
                 byte endata = (byte)(aucDataTable[encCounter + tableOffset] + xorKeys[encCounter + tableOffset]);
                 result[i] = (byte)(data[i] ^ endata);
                 encCounter++;
-                if (encCounter >= 0x47) encCounter = 0;
+                if (shu == 0) Console.Write(aucDataTable[encCounter + tableOffset].ToString("x2") + ";");
+                if (encCounter >= 0x47)
+                {
+                    encCounter = 0;
+                    if (shu == 0)
+                    {
+                        shu = 1;
+                        Console.WriteLine("");
+                    }
+                }
             }
             return result;
         }

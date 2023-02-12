@@ -12,7 +12,7 @@ namespace Anantashesha
     {
         static void Main(string[] args)
         {
-            string lname = @"C:\Program Files (x86)\GameON\RED STONE\RedStoneLocal.exe",
+            string lname = @"C:\Program Files (x86)\GameON\RED STONE\RedStoneLocalBypassMutex.exe",
                      dname = @"C:\Users\daigo\Documents\redstone_new2\Red Stone_dump.exe";
             Procedure.ProcedureFinder(lname);
             //BayesianNetwork.Fit();

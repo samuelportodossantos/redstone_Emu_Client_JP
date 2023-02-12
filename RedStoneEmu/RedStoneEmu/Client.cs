@@ -10,6 +10,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using RedStoneEmu.Provider;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace RedStoneEmu
 {
@@ -85,7 +87,7 @@ namespace RedStoneEmu
         /// DBに追加するべきアイテム
         /// </summary>
         public List<Item> AddDBItems { get; set; } = new List<Item>();
-        
+
         /// <summary>
         /// DBから削除するべきアイテム
         /// </summary>
@@ -493,7 +495,7 @@ namespace RedStoneEmu
         /// <param name="position"></param>
         /// <param name="size"></param>
         protected abstract void HandlePacket(uint type, ushort protectCode, byte[] data, uint position, uint size);
-        
+
         /// <summary>
         /// サーバータイプ接頭語
         /// </summary>

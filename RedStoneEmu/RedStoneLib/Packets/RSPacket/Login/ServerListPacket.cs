@@ -63,41 +63,12 @@ namespace RedStoneLib.Packets.RSPacket.Login
     [Table("game_server_info")]
     public class GameServerInfo
     {
-        /// <summary>
-        /// プライマリキー
-        /// </summary>
-        [Key]
-        [Column("id")]
         public int Id { get; set; }
-
-        /// <summary>
-        /// サーバー稼動状態
-        /// </summary>
-        [Column("enable")]
         public bool Enable { get; set; }
-
-        /// <summary>
-        /// 鯖のID
-        /// </summary>
-        [Column("server_id")]
         public int ServerId { get; set; }
+        public string? ServerName { get; set; }
 
-        /// <summary>
-        /// 表示される鯖名
-        /// </summary>
-        [Column("server_name")]
-        public string ServerName { get; set; }
-
-        /// <summary>
-        /// ローカル内でのIP
-        /// </summary>
-        [Column("host")]
-        public string Host { get; set; }
-
-        /// <summary>
-        /// ゲームサーバーのタイプ
-        /// </summary>
-        [Column("server_type")]
+        public string? Host { get; set; }
         public GameServerType ServerType { get; set; }
     }
 }

@@ -77,7 +77,7 @@ namespace RedStoneLib.Model
         {
             UserID = userID;
             Gold = 0;
-            UniqueItemString = string.Join(',', Enumerable.Range(0, 96).Select(_ => 0));
+            UniqueItemString = string.Join(",", Enumerable.Range(0, 96).Select(_ => 0));
         }
 
         /// <summary>

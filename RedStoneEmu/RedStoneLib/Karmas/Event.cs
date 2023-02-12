@@ -61,6 +61,7 @@ namespace RedStoneLib.Karmas
 
                 //メッセージ
                 Message = Helper.SjisByteToString(pr.EncryptionReads<byte>(baseReader.ReadInt16()));
+                //Console.WriteLine(Message);
 
                 //選択肢の長さ
                 Selections = new Selection[baseReader.ReadUInt16()];

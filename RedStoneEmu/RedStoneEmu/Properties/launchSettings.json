@@ -2,7 +2,7 @@
   "profiles": {
     "RedStoneEmu": {
       "commandName": "Project",
-      "commandLineArgs": "-d "
+      "commandLineArgs": "-g"
     }
   }
 }

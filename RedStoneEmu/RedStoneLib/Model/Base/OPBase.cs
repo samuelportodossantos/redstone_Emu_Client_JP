@@ -33,6 +33,7 @@ namespace RedStoneLib.Model.Base
 
                 //アイテムのサイズ
                 int itemLength = br.EncryptionRead<int>();
+                Console.WriteLine(itemLength);
 
                 //どこかへのオフセット
                 uint unknownOffset = br.ReadUInt32();
@@ -42,6 +43,7 @@ namespace RedStoneLib.Model.Base
 
                 //OPのサイズ
                 int OptionLength = br.EncryptionRead<int>();
+                Console.WriteLine(OptionLength);
 
                 //全OP取得
                 AllOPBases = br.EncryptionReads<OPBaseInfo>(OptionLength, sequentially: true).Select(t => new OPBase(t)).ToArray();

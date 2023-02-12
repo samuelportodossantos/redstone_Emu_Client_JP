@@ -82,6 +82,11 @@ namespace RedStoneLib.Packets
             return Helper.SjisByteToString(results.ToArray());
         }
 
+        public long Position()
+        {
+            return BaseStream.Position;
+        }
+
         /// <summary>
         /// 複数回文字列を読みこむ
         /// </summary>
@@ -147,6 +152,7 @@ namespace RedStoneLib.Packets
             {
                 //復号化
                 var encryptedByteArray = Helper.StructToBytes(obj);
+                Console.WriteLine("key:" + DecodeKey) ;
                 var decryptedByteArray = PacketCrypt.DecodeScenarioBuffer(encryptedByteArray, DecodeKey);
                 return Helper.BytesToStruct<T>(decryptedByteArray);
             }
@@ -169,7 +175,6 @@ namespace RedStoneLib.Packets
             {
                 return _Decryption((T)ReadFuncs[typeof(T)](this));
             }
-
             //辞書に追加
             ReadFuncs[typeof(T)] = s => Helper.BytesToStruct<T>(s.ReadBytes(Marshal.SizeOf(typeof(T))));
             return EncryptionRead<T>();

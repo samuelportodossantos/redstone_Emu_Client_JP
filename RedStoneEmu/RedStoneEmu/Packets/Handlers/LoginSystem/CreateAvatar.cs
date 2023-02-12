@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using RedStoneEmu.Database.PhpbbEF;
 using RedStoneEmu.Database.RedStoneEF;
+using RedStoneEmu.Provider;
 using RedStoneLib.Model;
 using RedStoneLib.Packets;
 using RedStoneLib.Packets.RSPacket.Login;
@@ -225,9 +227,11 @@ namespace RedStoneEmu.Packets.Handlers.LoginSystem
 
             //暫定
             //GMLevel = 7;
-            player.PosX = 74 * 64;
-            player.PosY = 67 * 32;
             player.Reflesh();
+            // player.PosX = 74 * 64;
+            // player.PosY = 67 * 32;
+            player.PosX = 3000;
+            player.PosY = 3000;
             player.NowHP = player.MaxHP;
             return player;
         }
@@ -257,6 +261,7 @@ namespace RedStoneEmu.Packets.Handlers.LoginSystem
             //パケットセキュリティコード変更
             context.PacketSecurityCode = (ushort)(new Random().Next());
 
+
             using (var db = new gameContext())
             {
                 //すでに存在する名前
@@ -274,16 +279,14 @@ namespace RedStoneEmu.Packets.Handlers.LoginSystem
                     var NewPlayer = CreatePlayer(context.User.UserID, charName, job, db);
 
                     //GMチェック
-                    using(var phpbb = new PhpBBContext())
+                    var phpbb = new PhpBBContext();
+                    var account = phpbb.phpbb_users.SingleOrDefaultAsync(t => t.username == context.User.UserID).Result;
+                    if (account?.user_rank == 1)
                     {
-                        var account = phpbb.phpbb_users.SingleOrDefaultAsync(t => t.username == context.User.UserID).Result;
-                        if (account?.user_rank==1)
-                        {
-                            NewPlayer.GMLevel = 7;
-                        }
+                        NewPlayer.GMLevel = 7;
                     }
 
-                    db.Players.AddAsync(NewPlayer).Wait();
+                    db.Players.Add(NewPlayer);
                     db.SaveChangesAsync().Wait();
 
                     //ローカルで追加

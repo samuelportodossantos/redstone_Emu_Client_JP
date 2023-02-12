@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using RedStoneEmu.Database.RedStoneEF;
+using RedStoneEmu.Provider;
 using RedStoneLib.Packets;
 using RedStoneLib.Packets.RSPacket.BCS;
 using System;

@@ -1,21 +1,20 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using Microsoft.EntityFrameworkCore;
 using RedStoneEmu.Database.RedStoneEF;
 using RedStoneLib.Karmas;
 using RedStoneLib.Model;
 using RedStoneLib.Model.Base;
 using RedStoneEmu.Packets.Handlers;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
 using RedStoneLib;
 using System.Reflection;
 using RedStoneEmu.Games;
-using RedStoneLib.Algorithm;
-using System.Drawing;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using RedStoneEmu.Provider;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
+using RedStoneEmu.Database.PhpbbEF;
 
 namespace RedStoneEmu
 {
@@ -38,8 +37,107 @@ namespace RedStoneEmu
         /// </summary>
         public static bool isDebug { get; private set; } = false;
 
+        private static async Task ConfigureServices()
+        {
+            using IHost host = Host.CreateDefaultBuilder()
+                .ConfigureServices((_, services) =>
+                {
+                    ServerConfig config = new ServerConfig();
+                    var connectionString = string.Format("Host={0};User Id={1};Password={2};Database={3};Port={4}",
+                        config.DatabaseHost,
+                        config.DatabaseUsername,
+                        config.DatabasePassword,
+                        config.DatabaseName,
+                        config.DatabasePort);
+
+                    services.AddDbContext<loginContext>(builder =>
+                    {
+                        builder.UseNpgsql(connectionString);
+                    });
+                    services.AddDbContext<gameContext>(builder =>
+                    {
+                        builder.UseNpgsql(connectionString);
+                    });
+
+                    services.AddDbContext<PhpBBContext>(builder =>
+                    {
+                        var conn = string.Format("Host={0};User Id={1};Password={2};Database={3};Port={4}",
+                        config.DatabaseHost,
+                        config.DatabaseUsername,
+                        config.DatabasePassword,
+                        config.DatabaseName,
+                        config.DatabasePort);
+                        builder.UseNpgsql(connectionString);
+                    });
+
+
+                })
+                .Build();
+
+            await host.RunAsync();
+        }
 
         static void Main(string[] args)
+        {
+            EnviromentController env = new EnviromentController();
+            env.build();
+            env.setupDatabases();
+
+            includeServer = ServerType.Login | ServerType.Game | ServerType.Community;
+
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            // Console.WriteLine(IPAddressProvider.GlobalIP);
+
+            //Logger設定
+            ConsoleSystem.IsStart = true;
+            ConsoleSystem.Start();
+
+            //Set Exit to a handler that ensures that it is executed before exiting
+            Console.CancelKeyPress += Exit;
+
+            // Load handler
+            PacketHandlers.LoadPacketHandlers();
+
+            //KarmaService load
+            KarmaItemServices.Load(Assembly.GetExecutingAssembly().GetTypes().Where(t => t.IsClass));
+
+            //Set log file name
+            // Logger.SetLogFileName(includeServer);
+
+            //Data read
+            if (true)
+            {
+                Quest.Load();
+                Skill.Load();
+                ItemBase.Load();
+                OPBase.Load();
+                Breed.Load();
+                Map.LoadAllMaps();
+                MAPServer.AllMapServersBuilder();
+
+                //delegate設定
+                // PublicHelper.WriteInternal = Logger.WriteInternal;
+                // PublicHelper.WriteWarning = Logger.WriteWarning;
+            }
+            Console.WriteLine("Finish");
+
+
+            //インスタンス開始
+            List<Task> tasks = new List<Task>();
+            foreach (ServerType instanceType in Enum.GetValues(typeof(ServerType)))
+            {
+                //フラグある場合
+                if (includeServer.HasFlag(instanceType))
+                {
+                    //サーバー実行
+                    tasks.Add(Task.Factory
+                        .StartNew(() => StartServer(instanceType))
+                        .ContinueWith((t) => Logger.WriteException(string.Format("[!!{0} SERVER!!]", instanceType), t.Exception.InnerException), TaskContinuationOptions.OnlyOnFaulted));
+                }
+            }
+        }
+
+        static void MainOLD(string[] args)
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             Console.WriteLine(IPAddressProvider.GlobalIP);
@@ -82,7 +180,7 @@ namespace RedStoneEmu
 
             //終了する前に実行されることを保証するハンドラにExitをセット
             Console.CancelKeyPress += Exit;
-            
+
             //ハンドラーのロード
             PacketHandlers.LoadPacketHandlers();
 
@@ -129,7 +227,7 @@ namespace RedStoneEmu
                     //サーバー実行
                     tasks.Add(Task.Factory
                         .StartNew(() => StartServer(instanceType))
-                        .ContinueWith((t)=>Logger.WriteException(string.Format("[!!{0} SERVER!!]", instanceType),t.Exception.InnerException), TaskContinuationOptions.OnlyOnFaulted));
+                        .ContinueWith((t) => Logger.WriteException(string.Format("[!!{0} SERVER!!]", instanceType), t.Exception.InnerException), TaskContinuationOptions.OnlyOnFaulted));
                 }
             }
         }

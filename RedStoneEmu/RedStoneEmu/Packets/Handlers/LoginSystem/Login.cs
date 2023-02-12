@@ -1,7 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using RedStoneEmu.Database.PhpbbEF;
 using RedStoneEmu.Database.RedStoneEF;
-using RedStoneEmu.Database.SMFEF;
+using RedStoneEmu.Provider;
 using RedStoneLib.Model;
 using RedStoneLib.Packets;
 using RedStoneLib.Packets.RSPacket.Login;
@@ -73,6 +74,20 @@ namespace RedStoneEmu.Packets.Handlers.LoginSystem
                     //パス認証
                     isMatch = BCrypt.Net.BCrypt.Verify(pass, account.user_password);
                 }
+
+                if (!isMatch)
+                {
+                    // Console.WriteLine("Cadastrando user...");
+                    // var u = new Users();
+                    // u.username = userID;
+                    // u.user_password = BCrypt.Net.BCrypt.HashPassword(pass);
+
+                    // loginPhpBB.Add(u);
+                    // loginPhpBB.SaveChanges();
+
+                    // account = u;
+                    // isMatch = true;
+                }
             }
 
             if (isMatch)
@@ -86,11 +101,12 @@ namespace RedStoneEmu.Packets.Handlers.LoginSystem
 
                 //成功パケ
                 context.SendPacket(new ResultLoginPacket(ResultLoginPacket.LoginResult.LoginSuccess_require_onetime, code, context.PacketSecurityCode), flush: true);
-                
+
+
                 using (var db = new gameContext())
                 {
                     //アバター取得
-                    var task = db.Players.Where(t => t.UserID == userID).ToListAsync(); 
+                    var task = db.Players.Where(t => t.UserID == userID).ToListAsync();
                     task.Wait();
                     ((LoginClient)context).Avatars = task.Result;
 
@@ -113,11 +129,13 @@ namespace RedStoneEmu.Packets.Handlers.LoginSystem
                     IPAddress = context.Socket.Socket.Client.RemoteEndPoint.ToString(),
                     MACAddress = macAddress
                 };
-                using (var loginMemoryDB = new loginContext())
+
+                using (var loginContext = new loginContext())
                 {
-                    loginMemoryDB.LoginLogs.Add(log);
-                    loginMemoryDB.SaveChangesAsync().Wait();
+                    loginContext.LoginLogs.Add(log);
+                    // loginContext.SaveChangesAsync().Wait();
                 }
+
             }
             else
             {

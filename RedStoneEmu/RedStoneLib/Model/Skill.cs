@@ -42,6 +42,7 @@ namespace RedStoneLib.Model
                 }
 
                 int skillSize = br.ReadInt32();
+                Console.WriteLine("skill:" + br._Decryption(skillSize));
 
                 //１でキーがなかった場合の復号化キーチェック
                 if (!br.NeedDecrypt)

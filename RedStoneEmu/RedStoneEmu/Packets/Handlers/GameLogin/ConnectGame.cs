@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Runtime.InteropServices.ComTypes;
+using Microsoft.EntityFrameworkCore;
 using RedStoneEmu.Database.RedStoneEF;
 using RedStoneEmu.Games;
 using RedStoneLib.Model;
@@ -9,6 +10,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using RedStoneEmu.Provider;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace RedStoneEmu.Packets.Handlers.GameLogin
 {

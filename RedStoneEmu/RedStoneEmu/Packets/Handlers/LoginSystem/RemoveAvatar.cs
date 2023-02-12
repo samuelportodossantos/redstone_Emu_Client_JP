@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using RedStoneEmu.Database.RedStoneEF;
+using RedStoneEmu.Provider;
 using RedStoneLib.Packets;
 using RedStoneLib.Packets.RSPacket.Login;
 using System;
@@ -18,7 +20,7 @@ namespace RedStoneEmu.Packets.Handlers.LoginSystem
     {
         public override void HandlePacket(Client context, PacketReader reader, uint size)
         {
-            
+
 
             //セキュリティコード
             var packet_security_code = reader.ReadUInt16();
@@ -42,6 +44,7 @@ namespace RedStoneEmu.Packets.Handlers.LoginSystem
 
             try
             {
+
                 using (var db = new gameContext())
                 {
                     //アバター取得

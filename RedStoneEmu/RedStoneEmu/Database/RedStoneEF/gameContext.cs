@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static RedStoneLib.Model.Player;
 
-namespace RedStoneEmu.Database.RedStoneEF
+namespace RedStoneEmu
 {
     /// <summary>
     /// ゲーム用のcontext
@@ -47,19 +47,31 @@ namespace RedStoneEmu.Database.RedStoneEF
             else
             {
                 Config = new ServerConfig(ServerType.Game);
-                if (!Config.Load()) throw new InvalidOperationException("ゲームサーバーの設定ファイルが読み込めませんでした．");
+                if (!Config.Load()) throw new InvalidOperationException("The game server configuration file could not be read.");
             }
         }
-        
+
+        public gameContext()
+        {
+
+        }
+
+        public gameContext(DbContextOptions<gameContext> options) : base(options)
+        {
+        }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseNpgsql(string.Format("Host={0};User Id={1};Password={2};Database={3};Port={4}",
-                "192.168.11.18",
-                "dmarch",
-                "hourai",
-                "redstone", 5432));
+            ServerConfig config = new ServerConfig();
+            var connectionString = string.Format("Host={0};User Id={1};Password={2};Database={3};Port={4}",
+                            config.DatabaseHost,
+                            config.DatabaseUsername,
+                            config.DatabasePassword,
+                            config.DatabaseName,
+                            config.DatabasePort);
+            optionsBuilder.UseNpgsql(connectionString);
         }
-        
+
         /// <summary>
         /// ここでuniqueなどを設定
         /// </summary>

@@ -191,7 +191,7 @@ namespace RedStoneLib.Model
         [Column("Skills")]
         private string Skills_DB
         {
-            get => string.Join(',', PlayerSkills.Select(t => $"{t.Index}:{t.Level}"));
+            get => string.Join(",", PlayerSkills.Select(t => $"{t.Index}:{t.Level}"));
             set
             {
                 PlayerSkills = value.Split(',').Select(t =>
@@ -208,7 +208,7 @@ namespace RedStoneLib.Model
         [Column("ProgressQuests")]
         private string ProgressQuests_DB
         {
-            get => string.Join(',', ProgressQuests.OrderBy(t => t.Key).Select(t => $"{t.Value.Index}:{t.Value.Progress}"));
+            get => string.Join(",", ProgressQuests.OrderBy(t => t.Key).Select(t => $"{t.Value.Index}:{t.Value.Progress}"));
             set
             {
                 if (value != "")
@@ -229,7 +229,7 @@ namespace RedStoneLib.Model
         [Column("Titles")]
         private string Titles_DB
         {
-            get => string.Join(',', Titles.Select(t => $"{t.Key}:{t.Value}"));
+            get => string.Join(",", Titles.Select(t => $"{t.Key}:{t.Value}"));
             set
             {
                 if (value != "")

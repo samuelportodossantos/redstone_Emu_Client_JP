@@ -1,7 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using RedStoneEmu.Database.RedStoneEF;
 using RedStoneEmu.Games;
 using RedStoneEmu.NetWork;
+using RedStoneEmu.Provider;
 using RedStoneLib;
 using RedStoneLib.Packets.RSPacket.Login;
 using System;
@@ -49,22 +51,22 @@ namespace RedStoneEmu
         /// <param name="e"></param>
         private void GameServerObserver(object args)
         {
-            try
+            using (var db = new loginContext())
             {
-                using (var db = new loginContext())
+                try
                 {
                     var task = db.GameServerInfos.ToListAsync();
                     task.Wait();
                     Packets.Handlers.LoginSystem.ServerList.GameServerInfos = task.Result;
                 }
-            }
-            catch (Exception ex) when (ex is System.Net.Sockets.SocketException || ex is Npgsql.NpgsqlException)
-            {
-                Logger.WriteWarning("[Game Server Observer] {0}", ex.Message);
-            }
-            catch (Exception ex)
-            {
-                Logger.WriteException("[Game Server Observer]", ex);
+                catch (Exception ex) when (ex is System.Net.Sockets.SocketException)
+                {
+                    Logger.WriteWarning("[Game Server Observer] {0}", ex.Message);
+                }
+                catch (Exception ex)
+                {
+                    Logger.WriteException("[Game Server Observer]", ex);
+                }
             }
         }
 
@@ -94,15 +96,13 @@ namespace RedStoneEmu
             //EXPテーブル計算
             StatusController.CalcEXPTables(Config.LevelCap);
 
-            //ゲームサーバー情報をDBに追加
-            loginContext db = new loginContext();
-            while (!NotifyEnableSaveGameServer(db))
+            //Save server information to database
+            using (var db = new loginContext())
             {
-                db = new loginContext();
+                NotifyEnableSaveGameServer(db!);
             }
-            db.Dispose();
         }
-        
+
         /// <summary>
         /// ゲームサーバー有効化を通知
         /// </summary>
@@ -130,22 +130,22 @@ namespace RedStoneEmu
 
             if (oldServer != null)
             {
-                //すでにサーバーがある場合は削除
+                //Remove server if exists
                 db.GameServerInfos.Remove(oldServer);
             }
             //追加
-            db.GameServerInfos.AddAsync(newServer).Wait();
+            db.GameServerInfos.Add(newServer);
 
-            Logger.WriteDB("ゲームサーバーをセーブ中...");
+            Logger.WriteDB("Saving game server");
             try
             {
                 db.SaveChangesAsync().Wait();
-                Logger.WriteDB("完了");
+                Logger.WriteDB("Finished");
                 return true;
             }
             catch
             {
-                Logger.WriteWarning("失敗");
+                Logger.WriteWarning("Failed");
                 return false;
             }
         }
@@ -166,9 +166,10 @@ namespace RedStoneEmu
         public override void HandleClosing()
         {
             base.HandleClosing();
+
             using (var db = new loginContext())
             {
-                NotifyDisableGameServer(db);
+                NotifyDisableGameServer(db!);
             }
         }
 
